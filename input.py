@@ -4,14 +4,13 @@ import streamlit as st
 from PIL import Image
 import cv2
 import imutils
-#from streamlit_webrtc import webrtc_streamer, VideoTransformerBase, ClientSettings
+from streamlit_webrtc import webrtc_streamer, VideoTransformerBase, ClientSettings
 from neural_style_transfer import get_model_from_path, style_transfer, load_image, image2tensor, tensor2image, imshow
 from data import *
 from torchvision import transforms
 
 
 def image_input(style_model_name):
-
     style_model_path = style_models_dict[style_model_name]
     model = get_model_from_path(style_model_path)
 
@@ -39,9 +38,10 @@ def image_input(style_model_name):
     st.image(generated, channels='RGB', clamp=True, caption="Result Image")
     #cv2.imwrite('./result/face_results.jpg', cv2.cvtColor(255*tensor2image(generated), cv2.COLOR_BGR2RGB))
 
+    return True
+
 
 def webcam_input(style_model_name):
-    '''
     st.header("Webcam Live Feed")
     WIDTH = st.sidebar.select_slider('QUALITY (May reduce the speed)', list(range(150, 501, 50)))
 
@@ -90,6 +90,7 @@ def webcam_input(style_model_name):
             result = Image.fromarray((transferred * 255).astype(np.uint8))
             return np.asarray(result.resize((orig_w, orig_h)))
 
+
     ctx = webrtc_streamer(
         client_settings=ClientSettings(
             rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
@@ -101,5 +102,3 @@ def webcam_input(style_model_name):
     if ctx.video_transformer:
         ctx.video_transformer.set_width(WIDTH)
         ctx.video_transformer.update_model_name(style_model_name)
-    '''
-    return True

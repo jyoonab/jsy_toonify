@@ -5,6 +5,7 @@ import torch
 
 from model import Generator
 from torchvision import transforms
+from PIL import Image
 
 def get_model_from_path(style_model_path):
     #model = cv2.dnn.readNetFromTorch(style_model_path)
@@ -22,12 +23,16 @@ def style_transfer(image, model):
 
     results = []
 
-    image = load_image(f"images/iu.jpg", image_size)
+    #image = load_image(f"images/iu.jpg", image_size)
+    image = torch.FloatTensor(image).permute(2, 0, 1).unsqueeze(0) / 255
+    image = (image - 0.5) / 0.5
+    #image = Image.fromarray(image)
+
     output = ckpt(image.to(device))
     #cv2.imwrite('./result/face_results.jpg', cv2.cvtColor(255*tensor2image(output), cv2.COLOR_BGR2RGB))
 
     output_array = output[0].permute(1, 2, 0).detach().cpu().numpy()
-
+    #return output_array
     return (0.5 * output_array + 0.5).clip(0, 1)
 
 def load_image(path, size=None):
