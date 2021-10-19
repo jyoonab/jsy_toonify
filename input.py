@@ -5,9 +5,10 @@ from PIL import Image
 import cv2
 import imutils
 from streamlit_webrtc import webrtc_streamer, VideoTransformerBase, ClientSettings
-from neural_style_transfer import get_model_from_path, style_transfer, load_image, image2tensor, tensor2image, imshow
+from neural_style_transfer import get_model_from_path, style_transfer, image2tensor, tensor2image, imshow, generate_new_video
 from data import *
 from torchvision import transforms
+import tempfile
 
 
 def image_input(style_model_name):
@@ -38,7 +39,26 @@ def image_input(style_model_name):
     st.image(generated, channels='RGB', clamp=True, caption="Result Image")
     #cv2.imwrite('./result/face_results.jpg', cv2.cvtColor(255*tensor2image(generated), cv2.COLOR_BGR2RGB))
 
-    return True
+def video_input(style_model_name):
+    converting = False
+
+    style_model_path = style_models_dict[style_model_name]
+    model = get_model_from_path(style_model_path)
+
+    video_file = st.file_uploader('Which video?', type=['mp4', 'avi'])
+    if video_file:
+        # show source video
+        temp_file = tempfile.NamedTemporaryFile(delete=False)
+        temp_file.write(video_file.read())
+        st.video(temp_file.name)
+
+
+        if converting:
+            st.write('Converting...')
+        else:
+            if st.button('Start Converting'):
+                converting = True
+                st.video(generate_new_video(temp_file.name, model))
 
 
 def webcam_input(style_model_name):
