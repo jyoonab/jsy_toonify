@@ -1,16 +1,22 @@
 import os
 
-# Style Models Data
+# GAN Type
+GAN_type_name = ['AnimeGAN', 'CutGAN', 'SytleGAN']
 
-style_models_file = ['portrait.pt', 'candy.t7', 'composition_vii.t7', 'feathers.t7', 'la_muse.t7', 'mosaic.t7', 'starry_night.t7', 'the_scream.t7', 'the_wave.t7', 'udnie.t7']
-style_models_name = ['Portrait', 'Candy', 'Composition_vii', 'Feathers', 'La_muse', 'Mosaic', 'Starry_night', 'The_scream', 'The_wave', 'Udnie']
-model_path = 'models'
-style_models_dict = {name: os.path.join(model_path, filee) for name, filee in zip(style_models_name, style_models_file)}
+# AnimeGAN
+animegan_file_list = ['portrait.pt', 'weater_and_yourname.pt', 'face_paint_512_v2_0.pt', 'test.pt', 'metfaces_512_v1_0.pt']
+animegan_type_list = ['Portrait', 'Your Name', 'Face Paint', 'Without Mean', 'Metfaces']
+model_path = 'models/animeGAN'
+animegan_model_dict = {name: os.path.join(model_path, filee) for name, filee in zip(animegan_type_list, animegan_file_list)}
+
+# CutGAN
+cutgan_file_list = ['latest_net_G.pth']
+cutgan_type_list = ['Default']
+model_path = 'models/cutGAN'
+cutgan_model_dict = {name: os.path.join(model_path, filee) for name, filee in zip(cutgan_type_list, cutgan_file_list)}
 
 # Style Images Data
-
 content_images_file = ['iu.jpg', 'ancient_city.jpg', 'blue-moon-lake.jpg', 'Dawn Sky.jpg', 'Dipping-Sun.jpg', 'golden_gate.jpg', 'Japanese-cherry.jpg', 'jurassic_park.jpg', 'Kinkaku-ji.jpg', 'messi.jpg', 'sagano_bamboo_forest.jpg', 'Sunlit Mountains.jpg', 'tubingen.jpg', 'winter-wolf.jpg']
 content_images_name = ['IU', 'Ancient_city', 'Blue-moon-lake', 'Dawn sky', 'Dipping-sun', 'Golden_gate', 'Japanese-cherry', 'Jurassic_park', 'Kinkaku-ji', 'Messi', 'Sagano_bamboo_forest', 'Sunlit mountains', 'Tubingen', 'Winter-wolf']
 images_path = 'images'
-
 content_images_dict = {name: os.path.join(images_path, filee) for name, filee in zip(content_images_name, content_images_file)}
