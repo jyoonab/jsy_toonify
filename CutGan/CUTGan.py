@@ -11,7 +11,7 @@ import json
 import time
 
 class CUTGan():
-    def __init__(self, target_image):
+    def __init__(self, target_image, target_model):
         '''Create Options'''
         parser = argparse.ArgumentParser()
 
@@ -33,6 +33,7 @@ class CUTGan():
         self.opt.no_flip = True    # no flip; comment this line if results on flipped images are needed.
         self.opt.display_id = -1   # no visdom display; the test code saves the results to a HTML file.
         self.opt.crop_size = 512
+        self.opt.name = target_model
 
         self.init_model()
 
@@ -63,6 +64,11 @@ class CUTGan():
             self.model.data_dependent_initialize(data)
             self.model.setup(self.opt)               # regular setup: load and print networks; create schedulers
             self.model.parallelize()
+
+    '''change model'''
+    def change_model(self, target_model):
+        self.opt.name = target_model
+        self.init_model()
 
 
     '''Start Converting Image'''

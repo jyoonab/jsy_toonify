@@ -1,7 +1,7 @@
 {
   "CUT_mode": "CUT",
   "batch_size": 1,
-  "checkpoints_dir": "./models\\cutGan",
+  "checkpoints_dir": "./models\\CUT",
   "crop_size": 256,
   "dataroot": "./datasets/horse2zebra",
   "dataset_mode": "unaligned",
