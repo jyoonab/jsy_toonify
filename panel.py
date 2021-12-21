@@ -30,7 +30,7 @@ def cartoonizer_demo_page(gan_type_name, convert_target, style_model_name):
     elif convert_target == 'Webcam':
         webcam_input(gan_type_name, style_model_name)
 
-def image_input(gan_type_name, style_model_name):
+def image_input(gan_type_name, style_model_name, photo_to_cartoon_time = 0, gpen_to_cartoon_time = 0, photo_to_gpen_time = 0):
     '''Upload or Image_Select'''
     if st.sidebar.checkbox('Upload'):
         content_file = st.sidebar.file_uploader("Choose a Content Image", type=["png", "jpg", "jpeg"])
@@ -46,10 +46,6 @@ def image_input(gan_type_name, style_model_name):
         st.warning("Upload an Image OR Untick the Upload Button")
         st.stop()
 
-    photo_to_cartoon_time = 0
-    gpen_to_cartoon_time = 0
-    photo_to_gpen_time = 0
-
     '''Image Quality Bar'''
     WIDTH = st.select_slider('QUALITY (May reduce the speed)', list(range(150, 501, 50)), value=300)
     content = imutils.resize(content, width=WIDTH)
@@ -60,9 +56,13 @@ def image_input(gan_type_name, style_model_name):
     photo_to_gpen_time = np.round(end_time - start_time, 3)
 
     '''Image Convert Start Point'''
-    if gan_type_name == 'AnimeGAN_v2':
+    if gan_type_name == 'AnimeGAN_v2' or gan_type_name == 'AnimeGAN':
         '''Initialize the model'''
-        style_model_path = animegan_v2_model_dict[style_model_name]
+        if gan_type_name == 'AnimeGAN_v2':
+            style_model_path = animegan_v2_model_dict[style_model_name]
+        elif gan_type_name == 'AnimeGAN':
+            style_model_path = animegan_model_dict[style_model_name]
+
         model = get_model_from_path(style_model_path)
 
         '''Start Converting Image(no GPEN)'''
@@ -76,22 +76,7 @@ def image_input(gan_type_name, style_model_name):
         generated_gpen = style_transfer(content_gpen, model)
         end_time = time.time()
         gpen_to_cartoon_time = np.round(end_time - start_time, 3)
-    elif gan_type_name == 'AnimeGAN':
-        '''Initialize the model'''
-        style_model_path = animegan_model_dict[style_model_name]
-        model = get_model_from_path(style_model_path)
 
-        '''Start Converting Image(no GPEN)'''
-        start_time = time.time()
-        generated = style_transfer(content, model)
-        end_time = time.time()
-        photo_to_cartoon_time = np.round(end_time - start_time, 3)
-
-        '''Start Converting Image(with GPEN)'''
-        start_time = time.time()
-        generated_gpen = style_transfer(content_gpen, model)
-        end_time = time.time()
-        gpen_to_cartoon_time = np.round(end_time - start_time, 3)
     elif gan_type_name == 'CutGAN':
         '''Initialize the model'''
         style_model_path = cutgan_model_dict[style_model_name]
@@ -134,16 +119,25 @@ def image_input(gan_type_name, style_model_name):
     st.markdown("Original Photo Size **{}x{}**".format(orig_w, orig_h))
 
 
-def webcam_input(gan_type_name, style_model_name):
+def webcam_input(gan_type_name, style_model_name, enable_gpen = False):
+
     st.header("Webcam Live Feed")
-    WIDTH = st.sidebar.select_slider('QUALITY (May reduce the speed)', list(range(150, 501, 50)))
+    WIDTH = st.select_slider('QUALITY (May reduce the speed)', list(range(150, 501, 50)), value=500)
+
+    if st.checkbox('Enable GPEN'):
+        enable_gpen = True
+    else:
+        enable_gpen = False
 
     class NeuralStyleTransferTransformer(VideoProcessorBase):
         def __init__(self) -> None:
             self._width = WIDTH
 
-            if gan_type_name == 'AnimeGAN':
-                self.style_model_path = animegan_model_dict[style_model_name]
+            if gan_type_name == 'AnimeGAN_v2' or gan_type_name == 'AnimeGAN':
+                if gan_type_name == 'AnimeGAN_v2':
+                    self.style_model_path = animegan_v2_model_dict[style_model_name]
+                elif gan_type_name == 'AnimeGAN':
+                    self.style_model_path = animegan_model_dict[style_model_name]
                 self.model = get_model_from_path(self.style_model_path)
 
             #elif gan_type_name == 'CutGAN':
@@ -151,17 +145,24 @@ def webcam_input(gan_type_name, style_model_name):
 
         def recv(self, frame):
             img = frame.to_ndarray(format="bgr24")
+            if enable_gpen:
+                img, orig_faces, enhanced_faces = faceenhancer.process(img)
             orig_h, orig_w = img.shape[0:2]
 
-            if gan_type_name == 'AnimeGAN':
+            if gan_type_name == 'AnimeGAN_v2' or gan_type_name == 'AnimeGAN':
+                img = cv2.cvtColor(cv2.flip(img, 1), cv2.COLOR_BGR2RGB)
+                img = img[50:-50, 50:-50]
+                img = cv2.resize(img, dsize=(720, 720), interpolation=cv2.INTER_LANCZOS4)
                 generated = style_transfer(img, self.model)
                 generated = cv2.convertScaleAbs(generated, alpha=255.0)
 
             elif gan_type_name == 'CutGAN':
-                img = cv2.resize(img, dsize=(512, 512), interpolation=cv2.INTER_LINEAR)
+                img = cv2.resize(img, dsize=(512, 512), interpolation=cv2.INTER_LANCZOS4)
                 generated = cut_gan.start_converting(img)
-                generated = cv2.resize(generated, dsize=(orig_w, orig_h), interpolation=cv2.INTER_LINEAR)
+                generated = cv2.resize(generated, dsize=(orig_w, orig_h), interpolation=cv2.INTER_LANCZOS4)
                 generated = cv2.cvtColor(generated, cv2.COLOR_RGB2BGR)
+
+            #generated = cv2.resize(generated, dsize=(orig_h, orig_w), interpolation=cv2.INTER_LANCZOS4)
 
             return av.VideoFrame.from_ndarray(generated)
 
