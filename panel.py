@@ -132,12 +132,13 @@ def webcam_input(gan_type_name, style_model_name, enable_gpen = False):
     class NeuralStyleTransferTransformer(VideoProcessorBase):
         def __init__(self) -> None:
             self._width = WIDTH
+            self.gan_type_name = gan_type_name
 
-            if gan_type_name == 'AnimeGAN_v2' or gan_type_name == 'AnimeGAN':
-                if gan_type_name == 'AnimeGAN_v2':
-                    self.style_model_path = animegan_v2_model_dict[style_model_name]
-                elif gan_type_name == 'AnimeGAN':
-                    self.style_model_path = animegan_model_dict[style_model_name]
+            if gan_type_name == 'AnimeGAN_v2':
+                self.style_model_path = animegan_v2_model_dict[style_model_name]
+                self.model = get_model_from_path(self.style_model_path)
+            elif gan_type_name == 'AnimeGAN':
+                self.style_model_path = animegan_model_dict[style_model_name]
                 self.model = get_model_from_path(self.style_model_path)
 
             #elif gan_type_name == 'CutGAN':
@@ -166,23 +167,20 @@ def webcam_input(gan_type_name, style_model_name, enable_gpen = False):
 
             return av.VideoFrame.from_ndarray(generated)
 
-        def set_width(self, width):
-            update_needed = self._width != width
-            self._width = width
-            if update_needed:
-                self._update_model()
 
-        def update_model_name(self, model_name):
-            update_needed = self._model_name != model_name
-            self._model_name = model_name
+        def update_model_name(self, model_name, style_model_name):
+            update_needed = (self.gan_type_name != model_name)
             if update_needed:
-                self._update_model()
+                self._update_model(model_name, style_model_name)
 
-        def _update_model(self):
-            print("state changed ", gan_type_name)
-            self.style_model_path = animegan_model_dict[style_model_name]
-            with self._model_lock:
+        def _update_model(self, model_name, style_model_name):
+            if model_name == 'AnimeGAN_v2' or model_name == 'AnimeGAN':
+                if model_name == 'AnimeGAN_v2':
+                    self.style_model_path = animegan_v2_model_dict[style_model_name]
+                elif model_name == 'AnimeGAN':
+                    self.style_model_path = animegan_model_dict[style_model_name]
                 self.model = get_model_from_path(self.style_model_path)
+            self.gan_type_name = model_name
 
     ctx = webrtc_streamer(
         rtc_configuration=ClientSettings(
@@ -194,4 +192,4 @@ def webcam_input(gan_type_name, style_model_name, enable_gpen = False):
         key="neural-style-transfer",
     )
     if ctx.video_transformer:
-        ctx.video_transformer.set_width(WIDTH)
+        ctx.video_transformer.update_model_name(gan_type_name, style_model_name)
