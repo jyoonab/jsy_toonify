@@ -10,6 +10,7 @@ from streamlit_webrtc import webrtc_streamer, ClientSettings, WebRtcMode, VideoP
 from image_preprocessor.FaceCropper import FaceCropper
 from ModelManager import Vid2vid, AnimeGan, CUT
 from summary_page import project_summary_page
+from streamlit.ReportThread import add_report_ctx
 
 from image_preprocessor.super_resolution.real_esrnet import RealESRNet
 
@@ -31,6 +32,7 @@ def cartoonizer_demo_page(filter, cartoonizer_mode):
             self.cartoonizer_mode = cartoonizer_mode
 
             t = threading.Thread(target=self.start_models)
+            add_report_ctx(thread)
             t.start()
 
         def recv(self, frame):
