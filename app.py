@@ -32,7 +32,7 @@ def cartoonizer_demo_page(filter, cartoonizer_mode):
             self.cartoonizer_mode = cartoonizer_mode
 
             t = threading.Thread(target=self.start_models)
-            add_script_run_ctx(t)
+            st.script_run_context.add_script_run_ctx(t)
             t.start()
 
         def recv(self, frame):
