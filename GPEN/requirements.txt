@@ -1,7 +1,0 @@
-ninja
-torch
-torchvision
-opencv-python
-numpy
-scikit-image
-pillow
