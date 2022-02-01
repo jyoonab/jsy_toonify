@@ -30,7 +30,7 @@ def cartoonizer_demo_page(filter, cartoonizer_mode):
             self.filter = filter
             self.cartoonizer_mode = cartoonizer_mode
 
-            start_models()
+            self.start_models()
 
             #t = threading.Thread(target=self.start_models)
             #st.script_run_context.add_script_run_ctx(t)
