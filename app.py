@@ -13,7 +13,7 @@ from summary_page import project_summary_page
 
 from image_preprocessor.super_resolution.real_esrnet import RealESRNet
 
-def cartoonizer_demo_page(filter, cartoonizer_mode):
+def cartoonizer_demo_page(filter: str, cartoonizer_mode: str) -> None:
     st.header("Webcam Live Test")
 
     class WebcamProcessor(VideoProcessorBase):
@@ -30,13 +30,10 @@ def cartoonizer_demo_page(filter, cartoonizer_mode):
             self.filter = filter
             self.cartoonizer_mode = cartoonizer_mode
 
-            self.start_models()
+            t = threading.Thread(target=self.start_models)
+            t.start()
 
-            #t = threading.Thread(target=self.start_models)
-            #st.script_run_context.add_script_run_ctx(t)
-            #t.start()
-
-        def recv(self, frame):
+        def recv(self, frame: np.ndarray) -> av.VideoFrame:
             self.counter = self.counter + 1
 
             frame = frame.to_ndarray(format="rgb24")
@@ -65,9 +62,10 @@ def cartoonizer_demo_page(filter, cartoonizer_mode):
                     self.vid2vid.change_target_image_from_image("./models/face_vid2vid/asset/avatar/6.png")
 
                 result_frame = self.vid2vid.start_converting(cropped_frame_float)
-                #If CUT
+            #If CUT
             elif self.cartoonizer_mode == "Selfie Segmentation":
                 result_frame = self.cut.start_converting_background_only(frame, self.filter)
+
             #If Anime_Gan
             elif self.cartoonizer_mode == "Cartoonizer":
                 result_frame = self.anime_gan.start_converting(frame, self.filter)
@@ -82,24 +80,23 @@ def cartoonizer_demo_page(filter, cartoonizer_mode):
 
             return av.VideoFrame.from_ndarray(combined_frame)
 
-        def is_model_loading_finished(self):
+        def is_model_loading_finished(self) -> bool:
             if self.vid2vid is None or self.face_detector is None or self.anime_gan is None or self.cut is None or self.super_resolution is None:
                 return False
             return True
 
-        def start_models(self):
+        def start_models(self) -> None:
             self.vid2vid = Vid2vid()
             self.face_detector = FaceCropper()
             self.anime_gan = AnimeGan()
             self.cut = CUT()
             self.super_resolution = RealESRNet()
 
-        def update_model_name(self, filter, cartoonizer_mode):
-            update_needed = (self.filter != filter)
-            if update_needed:
+        def update_model_name(self, filter: str, cartoonizer_mode: str) -> None:
+            if self.cartoonizer_mode != cartoonizer_mode or self.filter != filter:
                 self._update_model(filter, cartoonizer_mode)
 
-        def _update_model(self, filter, cartoonizer_mode):
+        def _update_model(self, filter: str, cartoonizer_mode: str) -> None:
             self.filter = filter
             self.cartoonizer_mode = cartoonizer_mode
 

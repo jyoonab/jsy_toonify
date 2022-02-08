@@ -36,7 +36,7 @@ class DeepAvatar:
         return get_checkpoints(config_path=f'{self.model_root_path}/config/vox-256-spade.yaml',
                                checkpoint_path=f'{self.model_root_path}/ckpt/00000189-checkpoint.pth.tar')
 
-    def change_head_pose(self, image_path: str, yaw: int = 0, pitch: int = 0, roll: int = 0):
+    def change_head_pose(self, image_path: str, yaw: int = 0, pitch: int = 0, roll: int = 0) -> object:
         image_array = get_image_array_from_path(image_path=image_path)
         options_dict: dict = {
             'avatar_image': image_array,
@@ -112,7 +112,7 @@ class DeepAvatar:
 
         return [img_as_ubyte(frame) for frame in prediction_result], int(fps)
 
-    def get_action_frame_from_webcam(self, synchronizer, avatar_tensor, frame):
+    def get_action_frame_from_webcam(self, synchronizer: object, avatar_tensor: object, frame: np.ndarray) -> np.ndarray:
         options_dict: dict = {
             'avatar_tensor': avatar_tensor,
             'frame': frame,

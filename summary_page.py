@@ -1,6 +1,6 @@
 import streamlit as st
 
-def project_summary_page():
+def project_summary_page() -> None:
     '''Introduction'''
     st.header("Introduction")
     st.write (
@@ -53,4 +53,4 @@ def project_summary_page():
     )
     st.image('./src/cut_flowchart.png', caption="3rd Method Flowchart")
     st.markdown("Selfie Segmentation: https://google.github.io/mediapipe/solutions/selfie_segmentation")
-    st.markdown("Dataset: https://github.com/taesungp/contrastive-unpaired-translation")
+    st.markdown("CUT: https://github.com/taesungp/contrastive-unpaired-translation")

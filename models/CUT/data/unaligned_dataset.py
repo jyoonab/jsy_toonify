@@ -61,15 +61,12 @@ class UnalignedDataset(BaseDataset):
         # Apply image transformation
         # For FastCUT mode, if in finetuning phase (learning rate is decaying),
         # do not perform resize-crop data augmentation of CycleGAN.
-#        print('current_epoch', self.current_epoch)
         is_finetuning = self.opt.isTrain and self.current_epoch > self.opt.n_epochs
         modified_opt = util.copyconf(self.opt, load_size=self.opt.crop_size if is_finetuning else self.opt.load_size)
 
         transform = get_transform(modified_opt)
         A = transform(A_img)
         B = transform(B_img)
-
-        #print(";glkhasd;lkfjasd;lkfj;lksadjf", A)
 
         return {'A': A, 'B': B, 'A_paths': A_path, 'B_paths': B_path}
 

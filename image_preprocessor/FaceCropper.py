@@ -1,8 +1,6 @@
 import cv2
 import numpy as np
-import time
 import mediapipe as mp
-from math import hypot
 
 class FaceCropper:
     def __init__(self) -> None:
@@ -45,7 +43,7 @@ class FaceCropper:
             return None
 
     ''' Returns Image Cut Points based on Face Location '''
-    def get_cut_point(self):
+    def get_cut_point(self) -> dict:
         top_point = self.landmarks[self.FACE_TOP][1]-self.CUT_EXTRA
         bottom_point = self.landmarks[self.FACE_BOTTOM][1]+self.CUT_EXTRA
         left_point = self.landmarks[self.FACE_LEFT][0]-self.CUT_EXTRA
@@ -61,7 +59,7 @@ class FaceCropper:
         return {'top_point': top_point, 'bottom_point': bottom_point, 'left_point': left_point, 'right_point': right_point}
 
     ''' Start Cropping Image '''
-    def crop_image(self, input_frame):
+    def crop_image(self, input_frame: np.ndarray) -> np.ndarray:
         if self.nose_moved_distance() > 3: # Prevents Frame Flickering
             self.cut_points = self.get_cut_point()
 
@@ -71,9 +69,9 @@ class FaceCropper:
         return cropped_frame
 
     ''' Calculate Nose Distance Moved '''
-    def nose_moved_distance(self):
+    def nose_moved_distance(self) -> int:
         return abs(self.previous_nose_point[0] - self.landmarks[self.FACE_CENTER][0]) + abs(self.previous_nose_point[1] - self.landmarks[self.FACE_CENTER][1])
 
     ''' Get Nose Coordinate '''
-    def get_nose_coordinate(self):
+    def get_nose_coordinate(self) -> np.ndarray:
         return self.landmarks[self.FACE_CENTER]
