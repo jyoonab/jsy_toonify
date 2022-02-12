@@ -32,7 +32,7 @@ On this method, each webcam frame is transformed by using both Selfie Segmentati
 6. CUT
 
 ## Requirement
-- Python 3.8
+- Python 3.8.12
 - Please see requirements.txt for more required libraries
 
 ## Installation & Usage
