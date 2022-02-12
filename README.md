@@ -51,3 +51,4 @@ https://github.com/TachibanaYoshino/AnimeGANv2
 https://github.com/NVlabs/imaginaire/tree/master/projects/fs_vid2vid
 https://google.github.io/mediapipe/solutions/selfie_segmentation
 https://github.com/taesungp/contrastive-unpaired-translation
+https://github.com/happy-jihye/face-vid2vid-demo
