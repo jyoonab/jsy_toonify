@@ -14,7 +14,12 @@ from summary_page import project_summary_page
 from image_preprocessor.super_resolution.real_esrnet import RealESRNet
 
 def cartoonizer_demo_page(filter: str, cartoonizer_mode: str) -> None:
-    st.header("Webcam Live Test")
+    if cartoonizer_mode == "Cartoonizer":
+        st.markdown("**1st Method** : Cartoonize using AnimeGANv2")
+    elif cartoonizer_mode == "Vid2vid":
+        st.markdown("**2nd Method** : Cartoonize using Vid2vid")
+    elif cartoonizer_mode == "Selfie Segmentation":
+        st.markdown("**3rd Method** : Cartoonize only background using Selfie Segmentation & CUT")
 
     class WebcamProcessor(VideoProcessorBase):
         def __init__(self) -> None:
@@ -28,6 +33,7 @@ def cartoonizer_demo_page(filter: str, cartoonizer_mode: str) -> None:
             self.counter = 0
 
             self.filter = filter
+            self.changed = True
             self.cartoonizer_mode = cartoonizer_mode
 
             t = threading.Thread(target=self.start_models)
@@ -55,11 +61,16 @@ def cartoonizer_demo_page(filter: str, cartoonizer_mode: str) -> None:
                     self.target_image = self.anime_gan.start_converting(cropped_frame_int, self.filter)
                     self.vid2vid.change_target_image_from_array(self.target_image)
 
-                if self.filter == "Hand Drawing":
+                elif self.filter == "Self" and self.changed:
+                    self.vid2vid.change_target_image_from_array(self.target_image)
+
+                if self.filter == "Hand Drawing" and self.changed:
                     self.vid2vid.change_target_image_from_image("./models/face_vid2vid/asset/avatar/3.png")
 
-                if self.filter == "Aman":
+                if self.filter == "Aman" and self.changed:
                     self.vid2vid.change_target_image_from_image("./models/face_vid2vid/asset/avatar/6.png")
+
+                self.changed = False
 
                 result_frame = self.vid2vid.start_converting(cropped_frame_float)
             #If CUT
@@ -99,6 +110,7 @@ def cartoonizer_demo_page(filter: str, cartoonizer_mode: str) -> None:
         def _update_model(self, filter: str, cartoonizer_mode: str) -> None:
             self.filter = filter
             self.cartoonizer_mode = cartoonizer_mode
+            self.changed = True
 
     ctx = webrtc_streamer(
         rtc_configuration=ClientSettings(
@@ -114,9 +126,17 @@ def cartoonizer_demo_page(filter: str, cartoonizer_mode: str) -> None:
         ctx.video_transformer.update_model_name(filter, cartoonizer_mode)
 
 
-st.title("JSY's Cartoonizer Demo Page")
-main_logo = Image.open('src/logo.png')
-st.sidebar.image(main_logo, use_column_width=True, width=50)
+st.title("Jongsung's Portfolio")
+with st.sidebar.expander("", expanded=True):
+    main_logo = Image.open('src/self.jpg')
+    st.image(main_logo, use_column_width=True, width=50)
+    st.title("Jong Sung Yoon")
+    st.caption("Cyber Security Expert @SK Shieldus")
+    st.markdown("- 📞 010-9158-8488")
+    st.markdown("- ✉️ jyoona12345@gmail.com")
+    st.markdown("- 🖥️ github.com/jyoonab")
+    st.markdown("\r\n")
+
 st.sidebar.title('Menu')
 method = st.sidebar.radio('', options=['About Projects', 'Demo Page'])
 
